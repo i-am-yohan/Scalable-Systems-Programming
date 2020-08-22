@@ -127,5 +127,10 @@ F_fcst <- cbind(date_df,data.frame('grade'='F'),data.frame(forecast(Model_F, h=1
 G_fcst <- cbind(date_df,data.frame('grade'='G'),data.frame(forecast(Model_G, h=16)))
 
 ARIMA_Forecast <- rbind(A_fcst,B_fcst,C_fcst,D_fcst,E_fcst,F_fcst,G_fcst)
+ARIMA_Forecast['Point.Forecast'] <- pnorm(ARIMA_Forecast[,'Point.Forecast'])
+ARIMA_Forecast['Lo.80'] <- pnorm(ARIMA_Forecast[,'Lo.80'])
+ARIMA_Forecast['Hi.80'] <- pnorm(ARIMA_Forecast[,'Hi.80'])
+ARIMA_Forecast['Lo.95'] <- pnorm(ARIMA_Forecast[,'Lo.95'])
+ARIMA_Forecast['Hi.95'] <- pnorm(ARIMA_Forecast[,'Hi.95'])
 write.csv(ARIMA_Forecast, paste(c(getwd(),'/Visual/ARIMA_Predict.csv'),collapse=''))
 
