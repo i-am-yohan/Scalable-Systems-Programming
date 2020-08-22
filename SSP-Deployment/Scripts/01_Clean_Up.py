@@ -1,5 +1,7 @@
 #Test
 from datetime import datetime
+import findspark
+findspark.init()
 from pyspark.sql import SQLContext, Window, SparkSession
 from pyspark import SparkConf, SparkContext, HiveContext
 from pyspark.sql.functions import lit, row_number, monotonically_increasing_id, isnan, when, count, col, avg, udf
