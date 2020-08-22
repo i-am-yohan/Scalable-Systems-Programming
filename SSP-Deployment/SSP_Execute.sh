@@ -6,7 +6,7 @@ rm loan.csv
 
 #2. Execute DB Analysis
 hdfs dfs -mkdir /In_Model
-pip3 install -r Requirements.txt
+sudo pip3 install -r Requirements.txt
 python3 Scripts/01_Clean_Up.py #1. Clean data and Upload
 python3 Scripts/02_Periodic_tbl.py #2. Create Periodic table and load MEVs
 python3 Scripts/03_Visual.py #3. Create input to Tableau - insights derived here
