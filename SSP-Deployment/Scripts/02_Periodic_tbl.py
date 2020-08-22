@@ -11,7 +11,7 @@ from io import StringIO
 from datetime import datetime
 from statsmodels.tsa.stattools import adfuller
 
-conf = SparkConf().setMaster("yarn").set('spark.sql.warehouse.dir' , 'hdfs://localhost:9000/user/hive/warehouse')
+conf = SparkConf().setMaster("yarn").set('spark.sql.warehouse.dir' , '/hive/warehouse')
 sc = SparkContext(conf = conf)
 #hive_context = HiveContext(sc)
 
