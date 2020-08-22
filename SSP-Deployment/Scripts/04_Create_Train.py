@@ -5,7 +5,7 @@ from pyspark import SparkConf, SparkContext
 import pandas as pd
 import numpy as np
 
-conf = SparkConf().setMaster("local").set('spark.sql.warehouse.dir' , 'hdfs://localhost:9000/user/hive/warehouse')
+conf = SparkConf().setMaster("local").set('spark.sql.warehouse.dir' , '/user/hive/warehouse')
 sc = SparkContext(conf = conf)
 
 sqlContext = HiveContext(sc)
@@ -132,9 +132,9 @@ left join Forecasts_SP as fc on extract(year from period_end_dte) = fc.Year
 --    )
 """)
 
-ABT_Train.coalesce(1).write.mode('overwrite').csv('hdfs://localhost:9000/In_Model/ABT_Train' , header=True)
-ARIMA_Train.coalesce(1).write.mode('overwrite').csv('hdfs://localhost:9000/In_Model/ARIMA_Train' , header=True)
-ABT_Predict.coalesce(1).write.mode('overwrite').csv('hdfs://localhost:9000/In_Model/ABT_Predict' , header=True)
-ARIMA_Predict.coalesce(1).write.mode('overwrite').csv('hdfs://localhost:9000/In_Model/ARIMA_Predict' , header=True)
+ABT_Train.coalesce(1).write.mode('overwrite').csv('/In_Model/ABT_Train' , header=True)
+ARIMA_Train.coalesce(1).write.mode('overwrite').csv('/In_Model/ARIMA_Train' , header=True)
+ABT_Predict.coalesce(1).write.mode('overwrite').csv('/In_Model/ABT_Predict' , header=True)
+ARIMA_Predict.coalesce(1).write.mode('overwrite').csv('/In_Model/ARIMA_Predict' , header=True)
 
 sc.stop()
