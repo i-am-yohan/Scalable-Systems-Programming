@@ -4,7 +4,7 @@ findspark.init()
 from pyspark.sql import SQLContext, HiveContext
 from pyspark import SparkConf, SparkContext
 
-conf = SparkConf().setMaster("yarn").set('spark.sql.warehouse.dir' , 'hdfs://localhost:9000/user/hive/warehouse')
+conf = SparkConf().setMaster("yarn").set('spark.sql.warehouse.dir' , '/user/hive/warehouse')
 sc = SparkContext(conf = conf)
 
 sqlContext = HiveContext(sc)
