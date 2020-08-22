@@ -9,14 +9,14 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import TimestampType
 
 
-conf = SparkConf().setMaster("yarn").set('spark.sql.warehouse.dir' , 'hdfs://localhost:9000/user/hive/warehouse')
+conf = SparkConf().setMaster("yarn").set('spark.sql.warehouse.dir' , '/user/hive/warehouse')
 sc = SparkContext(conf = conf)
 
 sqlContext = HiveContext(sc)
 
 print('1. Cleaning Data')
 print('1.1 Importing Raw Data')
-In_Df = sqlContext.read.csv('hdfs://localhost:9000/Input/loan.csv' , header=True, inferSchema=True)
+In_Df = sqlContext.read.csv('/Input/loan.csv' , header=True, inferSchema=True)
 
 #Create the database for working with
 sqlContext.sql("""create database work_db""")
