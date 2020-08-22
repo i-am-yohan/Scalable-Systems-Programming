@@ -3,5 +3,4 @@ pyspark
 requests
 pandas
 numpy
-StringIO
 statsmodels
