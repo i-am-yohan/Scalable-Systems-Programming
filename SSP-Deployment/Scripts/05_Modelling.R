@@ -1,10 +1,11 @@
-list.of.packages <- c("h2o",'sparklyr','reshape2','forecast','LaplacesDemon','lubridate')
+list.of.packages <- c('sparklyr','reshape2','forecast','LaplacesDemon','lubridate')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) {
   install.packages(new.packages, repos='http://cran.us.r-project.org')
   #spark_install()
 }
 
+install.packages("h2o", repos=(c("http://s3.amazonaws.com/h2o-release/h2o/master/1497/R", getOption("repos"))))
 
 library('h2o')
 library('sparklyr')
