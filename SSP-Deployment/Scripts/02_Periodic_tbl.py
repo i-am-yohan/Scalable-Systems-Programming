@@ -1,3 +1,5 @@
+import findspark
+findspark.init()
 from pyspark.sql import SQLContext, HiveContext
 from pyspark import SparkConf, SparkContext
 from pyspark.sql.functions import udf, col, months_between, floor
