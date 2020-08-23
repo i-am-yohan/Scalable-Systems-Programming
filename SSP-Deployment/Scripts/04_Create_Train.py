@@ -57,8 +57,8 @@ Fcst_Dim.createOrReplaceTempView("Fcst_Dim")
 ABT_Predict = sqlContext.sql("""
 --create table if not exists model.ABT_Predict as (
 select Min_TOB
-    ,   Min_TOB + pred.TOB as TOB
-    ,   cast(last_day(add_months(cast('2019-12-31' as date),pred.TOB*3)) as date) as period_dte
+    ,   pred.TOB as TOB
+    ,   cast(last_day(add_months(cast('2019-12-31' as date),(pred.TOB-Min_TOB)*3)) as date) as period_dte
     ,   grade
     ,   purpose_clean
     ,   Scenario
@@ -73,14 +73,14 @@ cross join (select distinct
         ,   purpose_clean
         ,   TOB
        from work_db.lc_dr_periodic) as pred
-        
-inner join Forecasts_SP as fc on extract(year from last_day(add_months(cast('2019-12-31' as date),pred.TOB*3))) = fc.Year
+
+inner join Forecasts_SP as fc on extract(year from last_day(add_months(cast('2019-12-31' as date),(pred.TOB-Min_TOB)*3))) = fc.Year
 left join (select TOB
             ,   sum(flow_to_df)/count(*) as TOB_ODR
             from work_db.lc_dr_periodic
             group by 1) as odr on odr.TOB = Min_TOB + pred.TOB
 
-where pred.TOB >= Min_TOB
+where pred.TOB > Min_TOB
     and pred.TOB <= (select max(TOB) from work_db.lc_dr_periodic)
 --)
 """)
