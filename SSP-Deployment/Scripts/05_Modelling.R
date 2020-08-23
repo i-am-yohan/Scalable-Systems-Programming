@@ -135,6 +135,7 @@ G_fcst <- cbind(date_df,data.frame('grade'='G'),data.frame(forecast(Model_G, h=1
 
 ARIMA_Forecast <- rbind(A_fcst,B_fcst,C_fcst,D_fcst,E_fcst,F_fcst,G_fcst)
 ARIMA_Forecast['Point.Forecast'] <- pnorm(ARIMA_Forecast[,'Point.Forecast'])
+#Convert back to probabilities
 ARIMA_Forecast['Lo.80'] <- pnorm(ARIMA_Forecast[,'Lo.80'])
 ARIMA_Forecast['Hi.80'] <- pnorm(ARIMA_Forecast[,'Hi.80'])
 ARIMA_Forecast['Lo.95'] <- pnorm(ARIMA_Forecast[,'Lo.95'])
