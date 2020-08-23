@@ -9,7 +9,8 @@ sc = SparkContext(conf = conf)
 
 sqlContext = HiveContext(sc)
 
-
+print('3. Preparing Data for pre-feature engineering visualization')
+print('Saving to Hive DB')
 #the TOB Binning
 def ODR_STR(Group, Time_Dim):
     out = sqlContext.sql("""
