@@ -1,3 +1,4 @@
+print('5.1 Installing R packages')
 list.of.packages <- c('sparklyr','reshape2','forecast','LaplacesDemon','lubridate')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) {
@@ -7,6 +8,7 @@ if(length(new.packages)) {
 
 install.packages("h2o", repos=(c("http://s3.amazonaws.com/h2o-release/h2o/master/1497/R", getOption("repos"))))
 
+print('5.1 Loading R packages')
 library('h2o')
 library('sparklyr')
 library('reshape2')
@@ -16,12 +18,13 @@ library('lubridate')
 
 
 #Cox-PH Model
+print('5.2 Starting H2o Cluster')
 h2o.init()
 
 ABT_Train <- h2o.importFile('hdfs://localhost:9000/In_Model/ABT_Train')
 ABT_Predict <- h2o.importFile('hdfs://localhost:9000/In_Model/ABT_Predict',skipped_columns = 3)
 
-
+print('5.3. Training Cox PH')
 Model <- h2o.coxph(
   x = c('grade','purpose_clean','UNRATE','DSPIC96_QoQ')
   ,event_column = 'flow_to_df'
@@ -31,16 +34,19 @@ Model <- h2o.coxph(
 
 out_predict <- ABT_Predict
 out_predict['PD'] <- invlogit(logit(ABT_Predict['TOB_ODR'])*exp(-h2o.predict(Model , ABT_Predict)))
+print('5.4. Writing Cox-PH predicitons to local machine')
 h2o.exportFile(out_predict , paste(c(getwd(),'/Visual/Cox_PH_Predict.csv'),collapse=''), force=TRUE)
 
+print('5.5. Shutting down H2o Cluster')
 h2o.shutdown(prompt = FALSE)
 
 
 
 #ARIMA Stuff
+print('5.6. Starting ARIMA Analyis')
 sc <- spark_connect(master='local') #Using Spark to get files from hdfs
-ARIMA_Train <- spark_read_csv(sc,'hdfs://localhost:9000/In_Model/ARIMA_Train')
-ARIMA_Predict <- spark_read_csv(sc,'hdfs://localhost:9000/In_Model/ARIMA_Predict')
+ARIMA_Train <- spark_read_csv(sc,'/In_Model/ARIMA_Train')
+ARIMA_Predict <- spark_read_csv(sc,'/In_Model/ARIMA_Predict')
 ARIMA_Train <- as.data.frame(ARIMA_Train)
 ARIMA_Predict <- as.data.frame(ARIMA_Predict)
 
@@ -60,7 +66,7 @@ mev_list <- c('UNRATE'
   ,'PAYEMS_YoY'
   ,'PAYEMS_YoY_lag1')
 
-ARIMA_Train['ODR'] <- qnorm(ARIMA_Train[,'ODR'])
+ARIMA_Train['ODR'] <- qnorm(ARIMA_Train[,'ODR']) #Standardize so residuals can be normal
 ARIMA_Train_t <- melt(ARIMA_Train
                       , c('period_end_dte','grade',mev_list)
                       , 'ODR'
@@ -69,7 +75,7 @@ ARIMA_Train_t <- melt(ARIMA_Train
 f <- paste(paste(c('period_end_dte',mev_list) , collapse = '+'),'grade',sep='~')
 ARIMA_Train_t <- dcast(ARIMA_Train, f)
 ARIMA_Train_t['period_end_dte'] <- as.Date(ARIMA_Train_t[,'period_end_dte'])
-ARIMA_Train_ABT <- ARIMA_Train_t[as.numeric(format(ARIMA_Train_t[,'period_end_dte'],'%Y')) >= 2009,]
+ARIMA_Train_ABT <- ARIMA_Train_t[as.numeric(format(ARIMA_Train_t[,'period_end_dte'],'%Y')) >= 2009,] #remove NA forecasts
 ARIMA_Train_ABT <- ARIMA_Train_ABT[order(ARIMA_Train_ABT['period_end_dte']),]
 
 
@@ -133,5 +139,6 @@ ARIMA_Forecast['Lo.80'] <- pnorm(ARIMA_Forecast[,'Lo.80'])
 ARIMA_Forecast['Hi.80'] <- pnorm(ARIMA_Forecast[,'Hi.80'])
 ARIMA_Forecast['Lo.95'] <- pnorm(ARIMA_Forecast[,'Lo.95'])
 ARIMA_Forecast['Hi.95'] <- pnorm(ARIMA_Forecast[,'Hi.95'])
+print('5.7. Writing ARIMA forecasts to local dir')
 write.csv(ARIMA_Forecast, paste(c(getwd(),'/Visual/ARIMA_Predict.csv'),collapse=''))
 
