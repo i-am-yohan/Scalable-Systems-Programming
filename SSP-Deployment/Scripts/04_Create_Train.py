@@ -10,6 +10,8 @@ sc = SparkContext(conf = conf)
 
 sqlContext = HiveContext(sc)
 
+print('4. Creating Data for Modelling')
+print('4.1 Creating Cox-PH training set')
 #Create training Table
 #sqlContext.sql("""create database if not exists model""")
 ABT_Train = sqlContext.sql("""
@@ -41,6 +43,7 @@ Forecasts_SP = sqlContext.createDataFrame(Forecasts)
 Forecasts_SP.createOrReplaceTempView("Forecasts_SP")
 
 #Create table of predictions
+print('4.2 Creating EBA Macroeconomic predictions')
 Fcst_Dim = pd.DataFrame(data = {'period_end_dte':['2019-12-31','2020-03-31','2020-03-31','2020-06-30','2020-12-31'
                                                     ,'2021-03-31','2021-03-31','2021-06-30','2021-12-31'
                                                     ,'2022-03-31','2022-03-31','2022-06-30','2022-12-31'
@@ -53,7 +56,7 @@ Fcst_Dim['period_end_dte'] = Fcst_Dim['period_end_dte'].astype('datetime64[ns]')
 Fcst_Dim = sqlContext.createDataFrame(Fcst_Dim)
 Fcst_Dim.createOrReplaceTempView("Fcst_Dim")
 
-
+print('4.3 Creating cox-PH prediction set')
 ABT_Predict = sqlContext.sql("""
 --create table if not exists model.ABT_Predict as (
 select Min_TOB
@@ -88,6 +91,7 @@ where pred.TOB > Min_TOB
 
 
 #Create ARIMA Table
+print('4.4 creating ARIMA training Set')
 ARIMA_Train = sqlContext.sql("""
 --create table if not exists model.ARIMA_TRAIN as (
 select  period_end_dte
@@ -132,6 +136,7 @@ left join Forecasts_SP as fc on extract(year from period_end_dte) = fc.Year
 --    )
 """)
 
+print('4.5 Writing to HDFS. Can get R to read directly from Hive for some reason!')
 ABT_Train.coalesce(1).write.mode('overwrite').csv('/In_Model/ABT_Train' , header=True)
 ARIMA_Train.coalesce(1).write.mode('overwrite').csv('/In_Model/ARIMA_Train' , header=True)
 ABT_Predict.coalesce(1).write.mode('overwrite').csv('/In_Model/ABT_Predict' , header=True)
